@@ -14,6 +14,7 @@ This guide makes a few assumptions.
 3. You are using sbctl to sign the kernel and uki for secure boot.  Also the necessary keys specified in the uki.conf must be created by you.  This can be done in the terminal by executing the following
 
  sudo ukify genkey --pcr-private-key=/etc/systemd/tpm2-pcr-private-key.pem --pcr-public-key=/etc/systemd/tpm2-pcr-public-key.pem
+ 
  sudo ukify genkey --pcr-private-key=/etc/systemd/pcr_policy_initrd_private.key --pcr-public-key=/etc/systemd/pcr_policy_initrd_public.key
 
 4. install the package yq.  This is used for some json parsing the snapshot labels.
