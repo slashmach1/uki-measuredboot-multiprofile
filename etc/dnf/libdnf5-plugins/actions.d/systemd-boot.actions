@@ -1,0 +1,2 @@
+#sign systemd-boot
+post_transaction:systemd-boot*:::/usr/bin/sign_systemd_boot
