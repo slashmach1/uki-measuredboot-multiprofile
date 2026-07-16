@@ -13,10 +13,10 @@ This guide makes a few assumptions.
   
 3. You are using sbctl to sign the kernel and uki for secure boot.  Also the necessary keys specified in the uki.conf must be created by you.  This can be done in the terminal by executing the following
 
+ sudo ukify genkey --pcr-private-key=/etc/systemd/tpm2-pcr-private-key.pem --pcr-public-key=/etc/systemd/tpm2-pcr-public-key.pem
+ sudo ukify genkey --pcr-private-key=/etc/systemd/pcr_policy_initrd_private.key --pcr-public-key=/etc/systemd/pcr_policy_initrd_public.key
+
 4. install the package yq.  This is used for some json parsing the snapshot labels.
-   
-sudo ukify genkey --pcr-private-key=/etc/systemd/tpm2-pcr-private-key.pem --pcr-public-key=/etc/systemd/tpm2-pcr-public-key.pem
-sudo ukify genkey --pcr-private-key=/etc/systemd/pcr_policy_initrd_private.key --pcr-public-key=/etc/systemd/pcr_policy_initrd_public.key
 
 The directory structure for the necessary configs has been preserved in the repo.  Simply copy the files in the /usr/bin folder to the corresponding folder on your machine and chmod +x all those files you copy.  Copy the configs (making updates changes as needed if any of 1,2,or 3 are not the case for you and your chosen distro. to the corresponding /etc directories.  Enable the two systemd services tpm2-rearm and uki_snapshot_update.service.
 
