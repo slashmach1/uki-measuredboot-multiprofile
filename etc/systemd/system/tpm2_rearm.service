@@ -1,0 +1,9 @@
+[Unit]
+Description=Rearm TPM2 After Regenerating Snapshots
+
+[Service]
+LoadCredentialEncrypted=tpm2_reseal_pin:/etc/credstore.encrypted/tpm2_reseal_pin.creds
+ExecStart=/usr/bin/tpm2_rearm
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,53 @@
+#!/bin/bash
+#exec &>/dev/null
+CHECKPOINTS="12"
+CMDLINE="$(cat /etc/kernel/cmdline | sed -e "s/rootflags\=subvol\=root\ //")"
+RELEASE="$(cat /etc/os-release | grep PRETTY_NAME | cut -d"=" -f2-)"
+MID="$(cat /etc/machine-id)"
+PROFILE=""
+SNAPSHOTS=$(btrfs su li / -s | tail -${CHECKPOINTS} | awk  '{print $14}' | grep -Eo '[0-9]{1,}' | sort -nr)
+KVERS=$(uname -r)
+EFIDIR="/efi/$MID/"
+check_kernelversions () {
+    KDIR="$EFIDIR/$KVER"
+    if [ ! -d $KDIR ]; then
+    mkdir -p $KDIR
+    export KERNEL="$KDIR/linux"
+    if [ ! -f $KERNEL ]; then
+    kernel-install add $KVER /lib/modules/$KVER/vmlinuz
+    cp /lib/modules/$KVER/vmlinuz $KERNEL
+    fi
+    export INITRD="$KDIR/initrd"
+    if [ ! -f $INITRD ]; then
+    dracut -fv --kver $KVER
+    fi
+    fi
+}
+generate_snapshot () {
+    DATE=$(yq '.snapshot.date' /.snapshots/$SNAPSHOT/info.xml)
+    DESC=$(yq '.snapshot.description' /.snapshots/$SNAPSHOT/info.xml)
+    ROLLBACK="rd.live.overlay.readonly=1 rootflags=subvol=root/.snapshots/$SNAPSHOT/snapshot"
+    ukify build --output=/tmp/profile${SNAP_ID}.efi --cmdline="$CMDLINE $ROLLBACK" --profile="ID=$DATE TITLE=$DESC"
+    PROFILE="$PROFILE --join-profile=/tmp/profile$SNAP_ID.efi"
+    ((SNAP_ID++))
+}
+rm -rfv /tmp/profiles*.efi
+for SNAPSHOT in $SNAPSHOTS; do
+  generate_snapshot "$SNAPSHOT"
+done
+for KVER in $KVERS; do
+  SNAP_ID=1
+  if [[ $KVER =~ "rescue" ]]; then
+    continue
+  else
+  KDIR="$EFIDIR/$KVER"
+  KERNEL="$KDIR/linux"
+  INITRD="$KDIR/initrd"
+  if [ ! -d $KDIR ]; then
+    check_kernelversions "$KVER"
+  fi
+  echo "KERNEL: $KERNEL INITRD: $INITRD"
+  ukify build --linux="$KERNEL" --initrd="$INITRD" --cmdline="$CMDLINE rootflags=subvol=root" --profile="ID=Root TITLE=Root" --os-release=@/etc/os-release --output=/efi/EFI/Linux/$MID-$KVER.efi -c /etc/kernel/uki.conf $PROFILE;
+  fi
+done
+rm -rfv /tmp/profiles*.efi

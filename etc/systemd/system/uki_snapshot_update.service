@@ -1,0 +1,11 @@
+[Unit]
+Description=UKI Snapshot Update
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/tpm2_rearm
+RemainAfterExit=yes
+
+[Install]
+WantedBy=multi-user.target
