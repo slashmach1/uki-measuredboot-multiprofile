@@ -19,7 +19,7 @@ This guide makes a few assumptions.
 
 4. install the package yq.  This is used for some json parsing the snapshot labels.
 
-The directory structure for the necessary configs has been preserved in the repo.  Simply copy the files in the /usr/bin folder to the corresponding folder on your machine and chmod +x all those files you copy.  Copy the configs (making updates changes as needed if any of 1,2,or 3 are not the case for you and your chosen distro. to the corresponding /etc directories.  Enable the systemd services tpm2-rearm.service.
+The directory structure for the necessary configs has been preserved in the repo.  Simply copy the files in the /usr/bin folder to the corresponding folder on your machine and chmod +x all those files you copy.  Copy the configs (making updates changes as needed if any of 1,2,or 3 are not the case for you and your chosen distro. to the corresponding /etc directories.  Enable the systemd service tpm2-rearm.service.
 
 Configuration:
 The uki_post_generate script variable at the top labeled CHECKPOINTS is the number of snapshots you wish to keep.  Feel free to change that if you need.
