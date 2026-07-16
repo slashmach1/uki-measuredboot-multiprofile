@@ -1,0 +1,6 @@
+#!/bin/bash
+rm /efi/EFI/systemd/systemd-bootx64.efi
+rm /efi/EFI/BOOT/BOOTX64.EFI
+bootctl install
+sbctl sign /efi/EFI/systemd/systemd-bootx64.efi
+sbctl sign /efi/EFI/BOOT/BOOTX64.EFI
