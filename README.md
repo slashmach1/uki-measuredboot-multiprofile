@@ -19,6 +19,10 @@ This guide makes a few assumptions.
 
 4. install the package yq.  This is used for some json parsing the snapshot labels.
 
+5. crypttab needs these following entries on the root device(s) appended to the luks options: tpm2-device=auto,tpm2-measure-pcr=yes
+
+6. a key needs to be generated for unlocking the root device but NOT added to the initramfs.  this is used only to avoid entering the password anytime the tpm2 rearm service runs.  the script located in the repo at /usr/bin/generate_cryptsetup_key.sh will handle the creation and setup of this when ran via sudo or as root.
+
 The directory structure for the necessary configs has been preserved in the repo.  Simply copy the files in the /usr/bin folder to the corresponding folder on your machine and chmod +x all those files you copy.  Copy the configs (making updates changes as needed if any of 1,2,3, or 4 are not the case for you and your chosen distro. to the corresponding /etc directories.  Enable the systemd service tpm2-rearm.service.
 
 Configuration:
