@@ -1,5 +1,5 @@
 #!/bin/bash
-#exec &>/dev/null
+exec &>/dev/null
 CHECKPOINTS="12"
 CMDLINE="$(cat /etc/kernel/cmdline | sed -e "s/rootflags\=subvol\=root\ //")"
 RELEASE="$(cat /etc/os-release | grep PRETTY_NAME | cut -d"=" -f2-)"
