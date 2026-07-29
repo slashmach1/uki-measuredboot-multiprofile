@@ -1,6 +1,6 @@
 #!/bin/bash
 #snapper setup
-dnf install snapper libdnf5-plugin-actions btrfs-assistant inotify-tools git make -y
+dnf install snapper libdnf5-plugin-actions btrfs-assistant inotify-tools git make yq systemd-ukify -y
 snapper -c root create-config /
 snapper -c home create-config /home
 restorecon -RFv /.snapshots
