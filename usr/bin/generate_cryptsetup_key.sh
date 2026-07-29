@@ -8,6 +8,14 @@ fi
 # Your actual script logic goes here
 echo "Success: Running with root privileges."
 
+# check secureboot state
+if mokutil --sb-state | grep -q "enabled"; then
+    echo "Secure Boot is enabled. Doing action..."
+    # Put your action here
+else
+    echo "Secure Boot is disabled. Please enable secureboot to allow luks tpm unlock..."
+fi
+
 ##generate uki.conf keys
 echo "Generating uki.conf keys..."
 ukify genkey --pcr-private-key=/etc/systemd/tpm2-pcr-private-key.pem --pcr-public-key=/etc/systemd/tpm2-pcr-public-key.pem
