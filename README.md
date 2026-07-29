@@ -1,32 +1,42 @@
 # uki-measuredboot-multiprofile
 A set of scripts and configuration files for setting up BTRFS snapshots utilizing both multi-profile UKI and measured boot on fedora
-NOTE: not written with the help of any online or local AI although it may have been better or cleaner with some assistance.... XD
 
-Workflow:
-Everytime the system boots or a new package is installed/updated it creates a new snapshot with a new uki incorporating the latest snapshots as UKI profiles.  This allows one kernel binary to boot any of your most recent snapshots while preserving measured/verified boot in most cases.  For existing kernels the tpm-rearm service updates the pcr values for measured/verified boot so you no longer have to enter the password so long as you are booting the same kernel version.  The only time you should have to is when the booted kernel changes.  
+HOW IT WORKS:
+Everytime the system boots the tpm2_rearm service runs to ensure the tpm is tracking the currently booted kernel version.  
+DNF installations or updates each create a new snapshot and incorporates this snapshot into new uki as a UKI profile.  This allows one kernel UKI binary to boot any of your most recent snapshots (specified by the CHECKPOINTS variable in the uki_post_generate script).    
+The only time you should have to reenter your luks password is when the booted kernel version or config changes.
+
+Requirements:
+1.  Fedora btrfs layout must have root and home partitions labeled root and home as distinct subvolumes (this is the default for fedoras parition installation on fedora 44).  any changes or customizations to those two partitions may break this guide.
+
+2. Systemd boot configured with /efi as the boot partition.  the /etc/kernel/install.conf within the repo needs to be updated to your current efi parititon location if you have customized this or left it at the /boot/efi default for fedora.
+
+3. Install sbctl however you choose.
 
 Installation:
-This guide makes a few assumptions.
-1. You are utilizing fedora, systemd-boot for uki handling, snapper, and the DNF package manager.  Adaptions must be made for this to work if it is not the case for you.
-  
-2. The btrfs root filesystem is its own subvolume labeled root.  If you are using timeshift vs snapper please change this to @root and come up with your own timeshift config for the snapshots.  The UKI services and systemd may need some fixes for timeshift as well but I have not looked at that.
-  
-3. You are using sbctl to sign the kernel and uki for secure boot.  Also the necessary keys specified in the uki.conf must be created by you.  This can be done in the terminal by executing the following
+1. Clone this repo and execute:
+cd uki-measuredboot-multiprofile && chmod +x usr/bin/* 
+to allow you to execute all the scripts contained in the repo.  
 
- sudo ukify genkey --pcr-private-key=/etc/systemd/tpm2-pcr-private-key.pem --pcr-public-key=/etc/systemd/tpm2-pcr-public-key.pem
- 
- sudo ukify genkey --pcr-private-key=/etc/systemd/pcr_policy_initrd_private.key --pcr-public-key=/etc/systemd/pcr_policy_initrd_public.key
+2. execute this to copy the functional scripts (meaning not one time setup scripts):
+sudo cp !(*.sh) /usr/bin/ -v
 
-4. install the package yq.  This is used for some json parsing the snapshot labels.
+3. run the following for setting up LUKS prerequisites:
+sudo usr/bin/generate_cryptsetup_keys.sh
 
-5. crypttab needs these following entries on the root device(s) appended to the luks options: tpm2-device=auto,tpm2-measure-pcr=yes
+4. run the snapper setup script:
+sudo usr/bin/snapper_setup.sh
 
-6. a key needs to be generated for unlocking the root device but NOT added to the initramfs.  this is used only to avoid entering the password anytime the tpm2 rearm service runs.  the script located in the repo at /usr/bin/generate_cryptsetup_key.sh will handle the creation and setup of this when ran via sudo or as root.
+5. install necessary configs:
+sudo cp etc/* /etc/ -rv
 
-The directory structure for the necessary configs has been preserved in the repo.  Simply copy the files in the /usr/bin folder to the corresponding folder on your machine and chmod +x all those files you copy.  Copy the configs (making updates changes as needed if any of 1,2,3, or 4 are not the case for you and your chosen distro. to the corresponding /etc directories.  Enable the systemd service tpm2-rearm.service.
+6. refresh dracut and kernel installation to generate the first UKI for your following boot:
+sudo dracut -vf --regenerate-all && sudo dnf reinstall kernel*
+
+7.OPTIONAL: add or update the following lines in /efi/loader/loader.conf so that you are able to view available snapshots upon booting
+timeout  4
+console-mode max
 
 Configuration:
-The uki_post_generate script variable at the top labeled CHECKPOINTS is the number of snapshots you wish to keep.  Feel free to change that if you need.
-
-Closing:
+The uki_post_generate script contains a variable at the top labeled CHECKPOINTS.  This sets the number of snapshots you wish to keep.
 Feel free to adapt or change this to suite your needs.  I will offer support off the top of my head but please do not expect 1:1 troubleshooting or package maintenance for your use case.  
