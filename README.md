@@ -33,10 +33,10 @@ sudo cp etc/* /etc/ -rv
 6. refresh dracut and kernel installation to generate the first UKI for your following boot:
 sudo dracut -vf --regenerate-all && sudo dnf reinstall kernel*
 
-7.OPTIONAL: refresh systemd and enable tpm2_rearm service if you wish to auto unlock when booting the same kernel version
+7. OPTIONAL: refresh systemd and enable tpm2_rearm service if you wish to auto unlock when booting the same kernel version
 sudo systemctl daemon-reload && sudo systemctl enable --now tpm2_rearm.service
 
-7.OPTIONAL: add or update the following lines in /efi/loader/loader.conf so that you are able to view available snapshots upon booting
+8. OPTIONAL: add or update the following lines in /efi/loader/loader.conf so that you are able to view available snapshots upon booting
 timeout  4
 console-mode max
 
