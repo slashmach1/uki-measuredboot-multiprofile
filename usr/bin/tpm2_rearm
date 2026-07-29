@@ -1,5 +1,8 @@
 #!/bin/bash
+#find root device UUID
 LUKS_DEVICE="/dev/$(findmnt / -rvno SOURCE | xargs realpath --relative-to /dev | xargs -I{} ls /sys/block/{}/slaves/)"
 LUKS_UUID=$(blkid -s UUID -o value $LUKS_DEVICE)
-systemd-cryptenroll --wipe-slot tpm2 --tpm2-device auto --tpm2-pcrs=0+2+4+7+15:sha256=0000000000000000000000000000000000000000000000000000000000000000 --tpm2-public-key /etc/systemd/tpm2-pcr-public-key.pem $LUKS_DEVICE --unlock-key-file /etc/cryptsetup-keys.d/luks-${LUKS_UUID}.key
 
+#reenroll tpm2 for passwordless unlock.
+#NOTE: this will only work when booting the same kernel as the previous boot.
+systemd-cryptenroll --wipe-slot tpm2 --tpm2-device auto --tpm2-pcrs=0+2+4+7+15:sha256=0000000000000000000000000000000000000000000000000000000000000000 --tpm2-public-key /etc/systemd/tpm2-pcr-public-key.pem $LUKS_DEVICE --unlock-key-file /etc/cryptsetup-keys.d/luks-${LUKS_UUID}.key
