@@ -42,4 +42,3 @@ console-mode max
 
 Configuration:
 The uki_post_generate script contains a variable at the top labeled CHECKPOINTS.  This sets the number of snapshots you wish to keep.
-Feel free to adapt or change this to suite your needs.  I will offer support off the top of my head but please do not expect 1:1 troubleshooting or package maintenance for your use case.  
