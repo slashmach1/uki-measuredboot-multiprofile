@@ -1,13 +1,25 @@
 #!/bin/bash
+#silence all output since this runs within the package manager transaction
 exec &>/dev/null
+
+#specify number of previous snapshots to keep for each kernel
 CHECKPOINTS="12"
+
+#gather config requirements for generating the UKI binary
 CMDLINE="$(cat /etc/kernel/cmdline | sed -e "s/rootflags\=subvol\=root\ //")"
 RELEASE="$(cat /etc/os-release | grep PRETTY_NAME | cut -d"=" -f2-)"
 MID="$(cat /etc/machine-id)"
 PROFILE=""
 SNAPSHOTS=$(btrfs su li / -s | tail -${CHECKPOINTS} | awk  '{print $14}' | grep -Eo '[0-9]{1,}' | sort -nr)
-KVERS=$(uname -r)
 EFIDIR="/efi/$MID/"
+
+#this variable is used to configure for current kernel or optionally all installed kernels
+#comment the first KVERS line and uncomment the following two lines to enable it to run for all installed kernels
+KVERS=$(uname -r)
+#KVERS=(ls /lib/modules/*)
+#KVERS=( "${kernels[@]%/}" ) 
+
+#checks the current kernel version is properly installed as this script will error out if it is not.  Mainly applicable to custom kernel installations (those not installed via your package manager)
 check_kernelversions () {
     KDIR="$EFIDIR/$KVER"
     if [ ! -d $KDIR ]; then
@@ -23,6 +35,8 @@ check_kernelversions () {
     fi
     fi
 }
+
+#generates the uki profile for each snapshot
 generate_snapshot () {
     DATE=$(yq '.snapshot.date' /.snapshots/$SNAPSHOT/info.xml)
     DESC=$(yq '.snapshot.description' /.snapshots/$SNAPSHOT/info.xml)
@@ -31,10 +45,17 @@ generate_snapshot () {
     PROFILE="$PROFILE --join-profile=/tmp/profile$SNAP_ID.efi"
     ((SNAP_ID++))
 }
+#removes previous profiles in /tmp/
 rm -rfv /tmp/profiles*.efi
+
+#generates all snapshots using checkpoints variable to determine how many previous iterations to keep
 for SNAPSHOT in $SNAPSHOTS; do
   generate_snapshot "$SNAPSHOT"
 done
+
+#this loop is unnecesary for a single kernel version but opens the possibily of expanding this script for all installed and bootable kernels
+#this can take a while to run for all kernels so this is disabled by default.  
+#uncomment the necessary $kvers lines details initially in the script to set this up
 for KVER in $KVERS; do
   SNAP_ID=1
   if [[ $KVER =~ "rescue" ]]; then
@@ -50,4 +71,6 @@ for KVER in $KVERS; do
   ukify build --linux="$KERNEL" --initrd="$INITRD" --cmdline="$CMDLINE rootflags=subvol=root" --profile="ID=Root TITLE=Root" --os-release=@/etc/os-release --output=/efi/EFI/Linux/$MID-$KVER.efi -c /etc/kernel/uki.conf $PROFILE;
   fi
 done
+
+#clean up profile efi files in /tmp
 rm -rfv /tmp/profiles*.efi
