@@ -13,7 +13,7 @@ if mokutil --sb-state | grep -q "enabled"; then
     echo "Secure Boot is enabled. Doing action..."
     # Put your action here
 else
-    echo "Secure Boot is disabled. Please enable secureboot to allow luks tpm unlock..."
+    echo "Secure Boot is disabled. Please enable secureboot after the script completes to allow LUKS TPM unlock..."
 fi
 
 ##generate uki.conf keys
