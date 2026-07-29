@@ -41,4 +41,4 @@ timeout  4
 console-mode max
 
 Configuration:
-The uki_post_generate script contains a variable at the top labeled CHECKPOINTS.  This sets the number of snapshots you wish to keep.
+The uki_post_generate script contains a variable at the top labeled CHECKPOINTS.  This sets the number of previous snapshots you wish to create bootable profiles for.
