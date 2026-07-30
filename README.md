@@ -19,10 +19,10 @@ cd uki-measuredboot-multiprofile && chmod +x usr/bin/*
 to allow you to execute all the scripts contained in the repo.  
 
 2. execute this to copy the functional scripts (meaning not one time setup scripts):
-sudo cp !(*.sh) /usr/bin/ -v
+sudo cp usr/bin/!(*.sh) /usr/bin/ -v
 
 3. run the following for setting up LUKS prerequisites:
-sudo usr/bin/generate_cryptsetup_keys.sh
+sudo usr/bin/generate_cryptsetup_key.sh
 
 4. run the snapper setup script:
 sudo usr/bin/snapper_setup.sh
